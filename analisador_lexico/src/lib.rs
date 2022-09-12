@@ -4,3 +4,6 @@ pub mod token_type;
 pub mod class;
 pub mod token;
 pub mod lexical_afd;
+pub mod grammar;
+pub mod parser;
+pub mod slr_table;

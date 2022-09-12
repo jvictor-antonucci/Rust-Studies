@@ -41,7 +41,10 @@ impl Scanner {
             let class = Class::to_str(token.class.clone());
             let token_type = TokenType::to_str(token.token_type.clone());
 
-            println!("Classe: {}, Lexema: {}, Tipo: {}", class, lexeme, token_type);
+            println!(
+                "Classe: {}, Lexema: {}, Tipo: {}",
+                class, lexeme, token_type
+            );
         }
     }
 
@@ -83,6 +86,23 @@ impl Scanner {
         }
 
         Token::new(Some(Class::Eof), Some(String::from("EOF")), None)
+    }
+
+    pub fn get_col(&self) -> usize {
+        self.cursor.1
+    }
+
+    pub fn get_row(&self) -> usize {
+        self.cursor.0
+    }
+
+    pub fn safe_scan(&mut self) -> Token {
+        loop {
+            let token = self.scan();
+            if token.class.ne(&Some(Class::Erro)) {
+                return token;
+            }
+        }
     }
 
     fn read_char(&mut self) -> Option<char> {
@@ -134,6 +154,23 @@ impl Scanner {
             AFDState::Error(6) => self.error_messages.push(format!("Erro Léxico 6: não foi encontrado o fechamento do comentário ou literal. Linha [{}] Coluna [{}]", row, col)),
             _ => (),
         }
+    }
+
+    pub fn show_error_messages(&self) -> u8 {
+        let n = self.error_messages.len();
+        match n {
+            0 => (),
+            1 => println!("Foi encontrado 1 erro léxico"),
+            _ => println!("Foi encontrado {} erros léxicos", n),
+        }
+
+        for i in 0..n {
+            let msg = &self.error_messages[i];
+            println!("# ERRO {}", i + 1);
+            println!("    {}", msg);
+        }
+
+        n as u8
     }
 
     fn assemble_token(&mut self, lexeme: String, afd_state: AFDState) -> Token {
@@ -189,7 +226,7 @@ impl Scanner {
             }
             _ => (),
         };
-        
+
         Token::new(class, lexeme, token_type)
     }
 }
